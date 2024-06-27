@@ -8,6 +8,6 @@ This sample was tested using Unity v2021.3.10 and Fishnet v3.11.14 as its netcod
 
 To make sure the project opens correctly in the Unity editor, clone the repo via the `git clone [URL]` command.
 
-To test the game sample, open the `SpaceEdge_project` folder with the Unity Hub.
+The Unity project is located in the `SpaceEdge_project` folder.
 
 You can see the full documentation [here](https://docs.edgegap.com/docs/playfab-bridge).
