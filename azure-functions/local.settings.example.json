@@ -1,0 +1,18 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "FUNCTIONS_WORKER_RUNTIME": "node",
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+
+    "PLAYFAB_TITLE_ID": "XXXXX",
+    "PLAYFAB_SECRET_KEY": "<PlayFab title secret key>",
+
+    "EDGEGAP_API_TOKEN": "<Edgegap API token, without the 'token ' prefix>",
+    "EDGEGAP_APP_NAME": "playfab-fishnet",
+    "EDGEGAP_APP_VERSION": "v1",
+    "EDGEGAP_READY_WEBHOOK_URL": "https://<function-app>.azurewebsites.net/api/EdgegapDeploymentReady?code=<function key>",
+
+    "FALLBACK_LATITUDE": "45.5019",
+    "FALLBACK_LONGITUDE": "-73.5674"
+  }
+}

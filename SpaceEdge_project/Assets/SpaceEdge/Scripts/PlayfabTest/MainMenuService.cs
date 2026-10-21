@@ -1,7 +1,3 @@
-using FishNet;
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -16,28 +12,29 @@ public class MainMenuService : MonoBehaviour
 
     private void Start()
     {
-        if (!InstanceFinder.ServerManager.GetStartOnHeadless())
-        {
-            _playfabService = FindObjectOfType<PlayfabRestApiService>();
-            _playfabService.OnStatusUpdate += ServerStatusUpdate;
-            _playfabService.OnUpdateButton += UpdateButtonState;
+        // The dedicated server has no menu: EdgegapServer starts it.
+        if (EdgegapServer.IsServer)
+            return;
 
-            startGameButton.onClick.AddListener(StartGame);
-            playerNameInput.onValueChanged.AddListener(NameChanged);
-            if (PlayerPrefs.HasKey("PlayerName"))
-                playerNameInput.text = PlayerPrefs.GetString("PlayerName");
+        _playfabService = FindObjectOfType<PlayfabRestApiService>();
+        _playfabService.OnStatusUpdate += ServerStatusUpdate;
+        _playfabService.OnUpdateButton += UpdateButtonState;
 
-            _playfabService.LoginPlayer();
-        }
+        startGameButton.interactable = false;
+        startGameButton.onClick.AddListener(StartGame);
+        playerNameInput.onValueChanged.AddListener(NameChanged);
+        if (PlayerPrefs.HasKey("PlayerName"))
+            playerNameInput.text = PlayerPrefs.GetString("PlayerName");
+
+        _playfabService.LoginPlayer();
     }
 
     private void OnDestroy()
     {
-        if (!InstanceFinder.ServerManager.GetStartOnHeadless())
-        {
-            _playfabService.OnStatusUpdate -= ServerStatusUpdate;
-            _playfabService.OnUpdateButton -= UpdateButtonState;
-        }
+        if (_playfabService == null)
+            return;
+        _playfabService.OnStatusUpdate -= ServerStatusUpdate;
+        _playfabService.OnUpdateButton -= UpdateButtonState;
     }
 
     private void StartGame()
@@ -51,14 +48,13 @@ public class MainMenuService : MonoBehaviour
     {
         serverStatus.text += "\n" + status;
         serverStatus.color = isError ? Color.red : Color.green;
-        Debug.Log(status);
+        if (isError)
+            Debug.LogError(status);
+        else
+            Debug.Log(status);
     }
 
-    private void UpdateButtonState(bool state) 
-    { 
-        startGameButton.interactable = state;
-        serverStatus.text = "";
-    }
+    private void UpdateButtonState(bool state) => startGameButton.interactable = state;
 
     private void NameChanged(string text) => PlayerPrefs.SetString("PlayerName", text);
 }
