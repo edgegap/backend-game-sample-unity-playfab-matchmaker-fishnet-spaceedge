@@ -17,6 +17,9 @@ namespace SpaceEdge
         public override void OnOwnershipClient(NetworkConnection prevOwner)
         {
             base.OnOwnershipClient(prevOwner);
+            // Runs on every client for every player: only the owner asks for its ship.
+            if (!IsOwner)
+                return;
 
             NewPlayerConnectedServerRpc(PlayerPrefs.GetString("PlayerName"));
             GameObject.FindWithTag("QuitButton").GetComponent<Button>().onClick.AddListener(() => ClientManager.StopConnection());
