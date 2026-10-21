@@ -1033,10 +1033,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5f972819728581d41a69d35daecb8cd3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  PlayerCustomID: 27251F5A50A90211
-  PlayerTitleID: B2CA85E58D7337BE
-  TitleID: A11C0
-  QueueName: TestingQueue
+  TitleId: 
+  QueueName: edgegap-fishnet
 --- !u!4 &1403793779
 Transform:
   m_ObjectHideFlags: 0
