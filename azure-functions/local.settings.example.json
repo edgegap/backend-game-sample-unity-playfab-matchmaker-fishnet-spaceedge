@@ -12,6 +12,7 @@
     "EDGEGAP_APP_VERSION": "v1",
     "EDGEGAP_READY_WEBHOOK_URL": "https://<function-app>.azurewebsites.net/api/EdgegapDeploymentReady?code=<function key>",
 
+    "EDGEGAP_QUEUES": "",
     "FALLBACK_LATITUDE": "45.5019",
     "FALLBACK_LONGITUDE": "-73.5674"
   }

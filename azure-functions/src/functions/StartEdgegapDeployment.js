@@ -19,6 +19,14 @@ app.http('StartEdgegapDeployment', {
       return { status: 400, jsonBody: { error: 'MatchId and QueueName are required.' } };
     }
 
+    // match_found fires for every queue of the title. EDGEGAP_QUEUES (comma-separated) limits which ones get a
+    // server here, e.g. while other queues still use PlayFab Multiplayer Servers. Unset = every queue.
+    const queues = (process.env.EDGEGAP_QUEUES ?? '').split(',').map((q) => q.trim()).filter(Boolean);
+    if (queues.length > 0 && !queues.includes(queueName)) {
+      context.log(`Match ${matchId}: queue '${queueName}' is not in EDGEGAP_QUEUES, skipped.`);
+      return { jsonBody: { skipped: queueName } };
+    }
+
     try {
       const entityToken = body.TitleAuthenticationContext?.EntityToken ?? (await playfab.getTitleEntityToken());
       const players = await playfab.getMatchPlayers(entityToken, queueName, matchId);

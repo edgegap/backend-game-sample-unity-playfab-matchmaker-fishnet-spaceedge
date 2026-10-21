@@ -93,6 +93,7 @@ App settings (Function App > Settings > Environment variables, or `az functionap
 | `EDGEGAP_API_TOKEN` | Edgegap API token (dashboard > User Settings > Tokens), without the `token ` prefix |
 | `EDGEGAP_APP_NAME` / `EDGEGAP_APP_VERSION` | `playfab-fishnet` / `v1` |
 | `EDGEGAP_PORT_NAME` | `gameport` |
+| `EDGEGAP_QUEUES` | Optional, comma-separated. Only matches from these queues get a server (`match_found` fires for every queue of the title). |
 | `EDGEGAP_READY_WEBHOOK_URL` | `https://<function-app>.azurewebsites.net/api/EdgegapDeploymentReady?code=<function key>` |
 | `FALLBACK_LATITUDE` / `FALLBACK_LONGITUDE` | Optional. Used when PlayFab has no location for any player. |
 
