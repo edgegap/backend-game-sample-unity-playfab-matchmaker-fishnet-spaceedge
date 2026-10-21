@@ -30,7 +30,7 @@ Tested end to end on 2026-10-21 with Unity 2021.3.45f2, FishNet 3.11.14, Node.js
 | --- | --- |
 | `azure-functions/` | The two Azure Functions (Node.js 22, no PlayFab or Edgegap SDK). |
 | `SpaceEdge_project/` | The Unity project. |
-| `SpaceEdge_project/Assets/SpaceEdge/Scripts/PlayfabTest/PlayfabRestApiService.cs` | Client flow: login, ticket, wait for match, wait for server, connect. |
+| `SpaceEdge_project/Assets/SpaceEdge/Scripts/PlayfabTest/PlayFabMatchmakingClient.cs` | Client flow: login, ticket, wait for match, wait for server, connect. Only `UnityWebRequest` and `JsonUtility` (no SDK, no JSON library, no threads), so it can also run in WebGL; WebGL has not been tested. |
 | `SpaceEdge_project/Assets/SpaceEdge/Scripts/Edgegap/EdgegapServer.cs` | Server lifecycle: starts FishNet in server builds and stops the Edgegap deployment when the match is over. Adds itself at runtime, so no scene setup is needed. |
 | `SpaceEdge_project/Assets/SpaceEdge/Editor/EdgegapServerBuild.cs` | Command-line Linux server and client builds. |
 | `SpaceEdge_project/Dockerfile` | Server container image. |
@@ -107,7 +107,7 @@ Then, in PlayFab:
 ## 4. Unity client
 
 1. Open `SpaceEdge_project`, scene `Assets/SpaceEdge/Scenes/MainMenu`.
-2. On the `PlayfabRestApiService` object, set **Title ID** and **Queue Name** (`edgegap-fishnet`).
+2. On the `PlayfabRestApiService` object (component `PlayFabMatchmakingClient`), set **Title Id** and **Queue Name** (`edgegap-fishnet`).
 3. Play: the menu logs in, **Start Game** queues, and the client connects once its server is ready.
 
 To run two clients on one machine, give each its own PlayFab player (PlayerPrefs are shared between them):

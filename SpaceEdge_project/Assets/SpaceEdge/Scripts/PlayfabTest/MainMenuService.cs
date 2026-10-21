@@ -8,7 +8,7 @@ public class MainMenuService : MonoBehaviour
     [SerializeField] private TMP_InputField playerNameInput;
     [SerializeField] private TMP_Text serverStatus;
 
-    private PlayfabRestApiService _playfabService;
+    private PlayFabMatchmakingClient _matchmaking;
 
     private void Start()
     {
@@ -16,42 +16,39 @@ public class MainMenuService : MonoBehaviour
         if (EdgegapServer.IsServer)
             return;
 
-        _playfabService = FindObjectOfType<PlayfabRestApiService>();
-        _playfabService.OnStatusUpdate += ServerStatusUpdate;
-        _playfabService.OnUpdateButton += UpdateButtonState;
+        _matchmaking = FindObjectOfType<PlayFabMatchmakingClient>();
+        _matchmaking.OnStatus += ServerStatusUpdate;
+        _matchmaking.OnCanQueue += UpdateButtonState;
 
-        startGameButton.interactable = false;
+        startGameButton.interactable = _matchmaking.IsLoggedIn;
         startGameButton.onClick.AddListener(StartGame);
         playerNameInput.onValueChanged.AddListener(NameChanged);
         if (PlayerPrefs.HasKey("PlayerName"))
             playerNameInput.text = PlayerPrefs.GetString("PlayerName");
 
-        _playfabService.LoginPlayer();
+        // Back from a match: the client is still logged in.
+        if (!_matchmaking.IsLoggedIn)
+            _matchmaking.Login();
     }
 
     private void OnDestroy()
     {
-        if (_playfabService == null)
+        if (_matchmaking == null)
             return;
-        _playfabService.OnStatusUpdate -= ServerStatusUpdate;
-        _playfabService.OnUpdateButton -= UpdateButtonState;
+        _matchmaking.OnStatus -= ServerStatusUpdate;
+        _matchmaking.OnCanQueue -= UpdateButtonState;
     }
 
     private void StartGame()
     {
-        startGameButton.interactable = false;
         serverStatus.text = "";
-        _playfabService.CreateTicket();
+        _matchmaking.FindMatch();
     }
 
     private void ServerStatusUpdate(string status, bool isError)
     {
         serverStatus.text += "\n" + status;
         serverStatus.color = isError ? Color.red : Color.green;
-        if (isError)
-            Debug.LogError(status);
-        else
-            Debug.Log(status);
     }
 
     private void UpdateButtonState(bool state) => startGameButton.interactable = state;
