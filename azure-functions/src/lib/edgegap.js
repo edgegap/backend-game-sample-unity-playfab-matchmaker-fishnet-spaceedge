@@ -1,5 +1,6 @@
 // Minimal Edgegap API client. The API token stays in the Function App settings, never in the game client.
 const { requireSetting } = require('./playfab');
+const join = require('./join');
 
 const API = 'https://api.edgegap.com';
 
@@ -24,7 +25,7 @@ async function call(method, path, body) {
  * Start one server for the match, placed near the players. Edgegap calls the ready/error webhooks
  * once the container is up (or failed), so nothing here waits for the server.
  */
-async function deployForMatch({ matchId, queueName, locations }) {
+async function deployForMatch({ matchId, queueName, players, locations }) {
   const webhook = new URL(requireSetting('EDGEGAP_READY_WEBHOOK_URL'));
   webhook.searchParams.set('matchId', matchId);
   webhook.searchParams.set('queue', queueName);
@@ -39,6 +40,11 @@ async function deployForMatch({ matchId, queueName, locations }) {
     environment_variables: [
       { key: 'PLAYFAB_MATCH_ID', value: matchId, is_hidden: false },
       { key: 'PLAYFAB_QUEUE_NAME', value: queueName, is_hidden: false },
+      {
+        key: join.ENV_KEY,
+        value: players.map((p) => join.joinToken(matchId, p.playFabId)).join(','),
+        is_hidden: true,
+      },
     ],
     webhook_on_ready: { url: webhook.toString() },
     webhook_on_error: { url: errorWebhook.toString() },
