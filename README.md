@@ -32,34 +32,37 @@ Tested end to end on 2026-10-21 with Unity 2021.3.45f2, FishNet 3.11.14, Node.js
 | `SpaceEdge_project/` | The Unity project. |
 | `SpaceEdge_project/Assets/SpaceEdge/Scripts/PlayfabTest/PlayFabMatchmakingClient.cs` | Client flow: login, ticket, wait for match, wait for server, connect. Only `UnityWebRequest` and `JsonUtility` (no SDK, no JSON library, no threads), so it can also run in WebGL; WebGL has not been tested. |
 | `SpaceEdge_project/Assets/SpaceEdge/Scripts/Edgegap/EdgegapServer.cs` | Server lifecycle: starts FishNet in server builds and stops the Edgegap deployment when the match is over. Adds itself at runtime, so no scene setup is needed. |
-| `SpaceEdge_project/Assets/SpaceEdge/Editor/EdgegapServerBuild.cs` | Command-line Linux server and client builds. |
-| `SpaceEdge_project/Dockerfile` | Server container image. |
+| `SpaceEdge_project/Assets/SpaceEdge/Editor/EdgegapPluginBuild.cs` | Command-line entry point for the Edgegap plugin's **Build server** (scripted tests, CI). |
+| `SpaceEdge_project/.dockerignore` | The plugin builds the image with the Unity project as Docker context: this sends only `Builds/EdgegapServer/` to Docker. |
+
+The server is built, containerized, pushed and registered with the [Edgegap Unity plugin](https://github.com/edgegap/buildtool-unity-plugin) (`com.edgegap.unity-servers-plugin`, pinned to `#3.2.1` in `Packages/manifest.json`, Editor only), so the project has no Dockerfile of its own.
 
 ## Prerequisites
 
 - Unity 2021.3 LTS with **Linux Build Support** and **Linux Dedicated Server Build Support**
-- Docker
+- Docker Desktop, running
 - An [Edgegap](https://app.edgegap.com) account
 - A [PlayFab](https://developer.playfab.com) title
 - An Azure subscription and the [Azure CLI](https://learn.microsoft.com/cli/azure/install-azure-cli)
 
 ## 1. Edgegap: build and register the server
 
-1. Build the Linux server (or use **Tools > Edgegap > Build Linux Dedicated Server** in the Editor):
-   ```bash
-   "<Unity>" -batchmode -quit -projectPath SpaceEdge_project -executeMethod EdgegapServerBuild.Build -logFile build-server.log
-   ```
-2. Build and push the image. Your registry project and credentials are on the dashboard's **Container Registry** page:
-   ```bash
-   cd SpaceEdge_project
-   docker login registry.edgegap.com
-   docker build --platform linux/amd64 -t registry.edgegap.com/<project>/playfab-fishnet:v1 .
-   docker push registry.edgegap.com/<project>/playfab-fishnet:v1
-   ```
-3. In the dashboard, create the application `playfab-fishnet` and a version `v1`:
-   - Image: `registry.edgegap.com/<project>/playfab-fishnet:v1`. Turn on **Private registry** and paste the Container Registry username and token.
-   - Port: name **`gameport`**, port **7770**, protocol **UDP**.
-   - 0.5 vCPU / 1 GB is plenty for this sample.
+Open `SpaceEdge_project` in Unity, then **Tools → Edgegap Server Hosting**:
+
+1. **Sign in with Edgegap** (or paste a token from **Get token**), then **Validate**.
+2. **Build server**. The output goes to `Builds/EdgegapServer/`.
+3. **Containerize with Docker**: **Image Name** `playfab-fishnet`, **Image Tag** empty (the plugin uses the current UTC time), default Dockerfile.
+4. Optional local check: **Optional Docker Run Parameters** `-p 7770:7770/udp`, then **Deploy local container**. Docker Desktop shows the server starting FishNet on 7770. **Terminate** when done.
+5. **Upload to Edgegap**: **Application Name** `playfab-fishnet`, then **Upload image and Create app version**. The plugin pushes the image and opens the dashboard's version form with the image and tag filled in. On it:
+   - Port: replace the form's default port with name **`gameport`**, port **7770**, protocol **UDP**.
+   - Registry credentials: if the form asks for them, use the username and token from the dashboard's **Container Registry** page.
+   - 0.5 vCPU / 1 GB is plenty for this sample. Keep the version name the plugin proposes (the image tag) and save.
+
+Without the Editor (CI, scripted tests), the same build runs from the command line:
+```bash
+"<Unity>" -batchmode -projectPath SpaceEdge_project -executeMethod EdgegapPluginBuild.BuildServer -logFile build-server.log
+```
+For later builds, **Rebuild from Source** in the plugin builds, containerizes and pushes in one click, then opens the version form again.
 
 ## 2. PlayFab: queue and title settings
 
@@ -114,7 +117,7 @@ Then, in PlayFab:
 To run two clients on one machine, give each its own PlayFab player (PlayerPrefs are shared between them):
 
 ```bash
-"<Unity>" -batchmode -quit -projectPath SpaceEdge_project -executeMethod EdgegapServerBuild.BuildClient -edgegapClientTarget win64
+"<Unity>" -batchmode -quit -projectPath SpaceEdge_project -buildTarget Win64 -buildWindows64Player Builds/Client/win64/Game.exe
 Builds/Client/win64/Game.exe -playfabCustomId player-a
 Builds/Client/win64/Game.exe -playfabCustomId player-b
 ```
