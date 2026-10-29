@@ -44,7 +44,7 @@ app.http('StartEdgegapDeployment', {
         ];
       }
 
-      const deployment = await edgegap.deployForMatch({ matchId, queueName, locations });
+      const deployment = await edgegap.deployForMatch({ matchId, queueName, players, locations });
       context.log(`Match ${matchId}: Edgegap deployment ${deployment.request_id} for ${players.length} player(s).`);
       return { jsonBody: { requestId: deployment.request_id, players: players.length } };
     } catch (err) {

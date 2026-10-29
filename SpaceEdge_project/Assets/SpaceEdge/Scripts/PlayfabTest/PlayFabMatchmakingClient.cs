@@ -4,8 +4,9 @@
 //   2. CreateMatchmakingTicket in the queue
 //   3. Poll GetMatchmakingTicket until "Matched"
 //   4. Poll GetUserReadOnlyData["EdgegapServer"] until the EdgegapDeploymentReady Azure Function writes this match's server
-//   5. Connect the netcode to host:port (the only netcode-specific code, in the NETCODE ADAPTER region)
-// Verified end to end with edgegap/sample-playfab-matchmaker-fishnet (FishNet 3.11, Tugboat UDP).
+//   5. Connect the netcode to host:port with this player's join token (the only netcode-specific code, in the
+//      NETCODE ADAPTER region)
+// Verified end to end with edgegap/backend-game-sample-unity-playfab-matchmaker-fishnet-spaceedge (FishNet 3.11, Tugboat UDP).
 using System;
 using System.Text;
 using System.Threading.Tasks;
@@ -46,6 +47,7 @@ public class PlayFabMatchmakingClient : MonoBehaviour
     private string _entityToken;
     private EntityKey _entity;
     private string _matchId;
+    private static bool _directConnectUsed;
 
     private static PlayFabMatchmakingClient _instance;
 
@@ -79,6 +81,18 @@ public class PlayFabMatchmakingClient : MonoBehaviour
 
     public async void Login()
     {
+        // Testing a local server container: -connect <host:port> skips PlayFab. Once per run: the menu calls
+        // Login again when a match ends, and the player should stay in the menu then.
+        string direct = GetArg("-connect");
+        if (!string.IsNullOrEmpty(direct) && !_directConnectUsed)
+        {
+            _directConnectUsed = true;
+            int colon = direct.LastIndexOf(':');
+            Status($"Connecting directly to {direct}...", false);
+            ConnectToServer(direct.Substring(0, colon), ushort.Parse(direct.Substring(colon + 1)), GetArg("-joinToken"));
+            return;
+        }
+
         if (string.IsNullOrEmpty(TitleId))
         {
             Status("Set the PlayFab Title ID on PlayFabMatchmakingClient.", true);
@@ -163,7 +177,7 @@ public class PlayFabMatchmakingClient : MonoBehaviour
                         return;
                     }
                     Status($"Server ready at {info.host}:{info.port}, connecting...", false);
-                    ConnectToServer(info.host, (ushort)info.port);
+                    ConnectToServer(info.host, (ushort)info.port, info.joinToken);
                     return;
                 }
             }
@@ -237,8 +251,10 @@ public class PlayFabMatchmakingClient : MonoBehaviour
     #region NETCODE ADAPTER
     // FishNet (Tugboat UDP). NGO: set UnityTransport.ConnectionData (Address, Port) then StartClient().
     // Mirror: NetworkManager.singleton.networkAddress + the transport's Port, then StartClient().
-    private void ConnectToServer(string host, ushort port)
+    // The join token is sent by JoinTokenAuthenticator right after connecting (NGO: connection payload).
+    private void ConnectToServer(string host, ushort port, string joinToken)
     {
+        JoinTokenAuthenticator.Install(InstanceFinder.NetworkManager).Token = joinToken;
         InstanceFinder.TransportManager.Transport.SetClientAddress(host);
         InstanceFinder.TransportManager.Transport.SetPort(port);
         InstanceFinder.ClientManager.StartConnection();
@@ -262,7 +278,7 @@ public class PlayFabMatchmakingClient : MonoBehaviour
     [Serializable] private class DataValue { public string Value; }
     [Serializable] private class DataMap { public DataValue EdgegapServer; }
     [Serializable] private class ReadOnlyDataResult { public DataMap Data; }
-    [Serializable] private class ConnectionInfo { public string matchId; public string status; public string host; public int port; public string message; }
+    [Serializable] private class ConnectionInfo { public string matchId; public string status; public string host; public int port; public string message; public string joinToken; }
 #pragma warning restore 0649
     #endregion
 }

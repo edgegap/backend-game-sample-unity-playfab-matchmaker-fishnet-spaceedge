@@ -4,7 +4,8 @@
   "description": "PlayFab Azure Functions that start an Edgegap game server when PlayFab Matchmaking forms a match.",
   "main": "src/functions/*.js",
   "scripts": {
-    "start": "func start"
+    "start": "func start",
+    "test": "node --test"
   },
   "engines": {
     "node": ">=20"
