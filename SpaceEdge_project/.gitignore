@@ -58,3 +58,9 @@ sysinfo.txt
 # Crashlytics generated file
 crashlytics-build.properties
 
+
+# Per-user and OS files
+/[Uu]ser[Ss]ettings/
+.idea/
+.DS_Store
+/UnityPlayer.so

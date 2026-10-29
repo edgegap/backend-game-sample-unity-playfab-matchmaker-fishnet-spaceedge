@@ -8,7 +8,8 @@ using UnityEngine.Networking;
 /// Dedicated server lifecycle on Edgegap. Adds itself at startup in server builds (no scene setup):
 /// starts the FishNet server on 7770, and stops its own Edgegap deployment when the match is over,
 /// because an empty server still costs money.
-/// The server needs no PlayFab secret: the Azure Functions hand the address to the players.
+/// The server needs no PlayFab secret: the Azure Functions hand the address and a join token to each player,
+/// and JoinTokenAuthenticator turns away anyone without one.
 /// </summary>
 public class EdgegapServer : MonoBehaviour
 {
@@ -61,6 +62,7 @@ public class EdgegapServer : MonoBehaviour
 
         // "Start On Headless" stays off on the ServerManager: this starts the server, on a known port.
         NetworkManager nm = InstanceFinder.NetworkManager;
+        JoinTokenAuthenticator.Install(nm); // only the matched players get in
         nm.TransportManager.Transport.SetPort(ListenPort);
         nm.ServerManager.StartConnection();
         Debug.Log($"Edgegap Server | Starting server on 0.0.0.0:{ListenPort}.");

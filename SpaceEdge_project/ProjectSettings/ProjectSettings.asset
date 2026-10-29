@@ -714,13 +714,13 @@ PlayerSettings:
   webGLPowerPreference: 2
   scriptingDefineSymbols:
     Android: FISHNET
-    Server: FISHNET;FISHNET_V3
-    Standalone: FISHNET;FISHNET_V3
+    Server: FISHNET;FISHNET_V3;EDGEGAP_PLUGIN_SERVERS
+    Standalone: FISHNET;FISHNET_V3;EDGEGAP_PLUGIN_SERVERS
   additionalCompilerArguments: {}
   platformArchitecture: {}
   scriptingBackend:
     Server: 0
-    Standalone: 1
+    Standalone: 0
   il2cppCompilerConfiguration: {}
   managedStrippingLevel:
     EmbeddedLinux: 1
