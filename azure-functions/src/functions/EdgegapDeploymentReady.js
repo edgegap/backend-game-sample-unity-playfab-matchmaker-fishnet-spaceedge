@@ -4,6 +4,7 @@
 const { app } = require('@azure/functions');
 const playfab = require('../lib/playfab');
 const edgegap = require('../lib/edgegap');
+const join = require('../lib/join');
 
 // Name of the port on the Edgegap app version (UDP 7770 for FishNet Tugboat).
 const portName = () => process.env.EDGEGAP_PORT_NAME || 'gameport';
@@ -40,7 +41,15 @@ app.http('EdgegapDeploymentReady', {
 
       const token = await playfab.getTitleEntityToken();
       const players = await playfab.getMatchPlayers(token, queueName, matchId);
-      await Promise.all(players.map((p) => playfab.setConnectionInfo(p.playFabId, info)));
+      // Each player gets their own join token; the server admits only these.
+      await Promise.all(
+        players.map((p) =>
+          playfab.setConnectionInfo(
+            p.playFabId,
+            info.status === 'ready' ? { ...info, joinToken: join.joinToken(matchId, p.playFabId) } : info
+          )
+        )
+      );
 
       context.log(`Match ${matchId}: sent ${info.status} ${info.host ?? ''}:${info.port ?? ''} to ${players.length} player(s).`);
       return { jsonBody: { status: info.status, players: players.length } };
