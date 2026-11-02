@@ -9,7 +9,7 @@
 
     "EDGEGAP_API_TOKEN": "<Edgegap API token, without the 'token ' prefix>",
     "EDGEGAP_APP_NAME": "playfab-fishnet",
-    "EDGEGAP_APP_VERSION": "v1",
+    "EDGEGAP_APP_VERSION": "<version name, e.g. 20261029-1800>",
     "EDGEGAP_READY_WEBHOOK_URL": "https://<function-app>.azurewebsites.net/api/EdgegapDeploymentReady?code=<function key>",
 
     "EDGEGAP_QUEUES": "",
