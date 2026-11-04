@@ -1,5 +1,7 @@
 # PlayFab Matchmaking + Edgegap dedicated servers
 
+![Add PlayFab Matchmaking and Edgegap dedicated game servers to the SpaceEdge FishNet sample in Unity.](docs/images/card.jpg)
+
 Players are matched by **PlayFab Matchmaking**, and each match gets its own **Edgegap** dedicated server, placed near the players. Two small **Azure Functions** (PlayFab's "CloudScript using Azure Functions") connect the two. Nothing secret ships in the game client, the game server holds no PlayFab or Edgegap credentials, and only the matched players can join it.
 
 The game is *SpaceEdge*, a small Unity space shooter on FishNet (Tugboat, UDP 7770).
