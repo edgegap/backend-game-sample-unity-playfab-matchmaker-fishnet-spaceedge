@@ -40,7 +40,7 @@ Tested end to end on 2026-10-21 with Unity 2021.3.45f2, FishNet 3.11.14, Node.js
 | `SpaceEdge_project/Assets/SpaceEdge/Editor/EdgegapPluginBuild.cs` | Command-line builds: the Edgegap plugin's **Build server** (scripted tests, CI), and the Windows test client. |
 | `SpaceEdge_project/.dockerignore` | The plugin builds the image with the Unity project as Docker context: this sends only `Builds/EdgegapServer/` to Docker. |
 
-The server is built, containerized, pushed and registered with the [Edgegap Unity plugin](https://github.com/edgegap/buildtool-unity-plugin) (`com.edgegap.unity-servers-plugin`, pinned to `#3.2.1` in `Packages/manifest.json`, Editor only), so the project has no Dockerfile of its own.
+The server is built, containerized, pushed and registered with the [Edgegap Unity plugin](https://github.com/edgegap/buildtool-unity-plugin) (`com.edgegap.unity-servers-plugin`, pinned to `#3.2.2` in `Packages/manifest.json`, Editor only), so the project has no Dockerfile of its own.
 
 ## Prerequisites
 
@@ -156,7 +156,7 @@ To test against the local container from section 1 without PlayFab, skip matchma
 - The client holds only the PlayFab title ID. The title secret and the Edgegap token stay in the Function App settings.
 - Server addresses are written to **read-only** player data, which clients can read but not change.
 - The game server admits only the matched players (join tokens, see How it works). It never sees the title secret.
-- The Edgegap Unity plugin's default Dockerfile (3.2.1) runs `env` before the server, so a deployment's logs show its variables, including `EDGEGAP_JOIN_TOKENS` and its self-stop token. The fix is [buildtool-unity-plugin#62](https://github.com/edgegap/buildtool-unity-plugin/pull/62); until it ships, use a custom Dockerfile without `env` if logs are shared.
+- Plugin 3.2.1's default Dockerfile ran `env` before the server, so a deployment's logs showed its variables, including `EDGEGAP_JOIN_TOKENS` and its self-stop token. Fixed in plugin 3.2.2 ([buildtool-unity-plugin#62](https://github.com/edgegap/buildtool-unity-plugin/pull/62)), which this project pins; rebuild the image if yours was built with 3.2.1.
 
 ## Costs
 
